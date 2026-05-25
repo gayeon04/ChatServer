@@ -1,0 +1,32 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+group = 'org.zerock'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
+
+application {
+    mainClass = 'org.zerock.Main'
+    applicationDefaultJvmArgs = ['-Dfile.encoding=UTF-8', '-Dstdout.encoding=UTF-8']
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+task runServer(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'org.zerock.Main'
+    jvmArgs = ['-Dfile.encoding=UTF-8', '-Dstdout.encoding=UTF-8']
+    standardInput = System.in
+}
