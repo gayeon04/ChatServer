@@ -38,6 +38,13 @@ task runClient(type: JavaExec) {
     standardInput = System.in
 }
 
+jar {
+    manifest {
+        attributes 'Main-Class': 'org.zerock.Main'
+    }
+}
+
+
 dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
     testImplementation 'org.mockito:mockito-core:5.11.0'

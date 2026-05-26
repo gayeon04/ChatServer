@@ -86,18 +86,23 @@ src/main/java/org/zerock/
 
 ## 실행 방법
 
+### 사전 준비
+- Java 21 이상 설치
+
 ### 서버 실행
-`run.bat` 더블클릭 또는:
 ```bash
-gradlew.bat runServer
+./gradlew runServer
 ```
 
 ### 클라이언트 실행
-`run_client.bat` 더블클릭 또는:
+새 터미널을 열고 아래 명령어를 실행합니다.
 ```bash
-gradlew.bat runClient
+./gradlew runClient
 ```
-여러 클라이언트를 동시에 실행하려면 `run_client.bat`을 여러 번 실행하면 됩니다.
+
+여러 클라이언트를 동시에 접속하려면 터미널을 추가로 열어 `runClient`를 각각 실행합니다.
+
+> Windows에서는 `./gradlew` 대신 `gradlew.bat` 또는 `gradlew`를 사용합니다.
 
 ---
 
