@@ -40,24 +40,24 @@ public class ChatServer {
 
                 // DoS 방어 1: IP별 동시 접속 수 초과 시 즉시 차단
                 if (!sessionManager.allowConnection(ip)) {
-                    System.out.println("[차단] IP " + ip + " 접속 거부");
+                    System.out.println("[blocked] IP " + ip + " connection failed");
                     clientSocket.close();
                     continue;
                 }
 
                 // DoS 방어 2: 전체 접속자 수 초과 시 거부
                 if (sessionManager.getSessionCount() >= MAX_CLIENTS) {
-                    System.out.println("[차단] 최대 접속자 초과 - " + ip + " 거부");
+                    System.out.println("[blocked] Exceeded Maximum Connection - " + ip + " denied" );
                     clientSocket.close();
                     continue;
                 }
 
-                System.out.println("[connect] " + ip + " | 스레드: "+Thread.currentThread().getName());
+                System.out.println("[connect] " + ip + " | thread: "+Thread.currentThread().getName());
                 threadPool.execute(new ClientHandler(clientSocket, roomManager, sessionManager));
 
             } catch (IOException e) {
                 if (!serverSocket.isClosed()) {
-                    System.err.println("[오류] " + e.getMessage());
+                    System.err.println("[error] " + e.getMessage());
                 }
             }
         }
@@ -67,9 +67,9 @@ public class ChatServer {
         try {
             threadPool.shutdown();
             if (!serverSocket.isClosed()) serverSocket.close();
-            System.out.println("[서버 정상 종료]");
+            System.out.println("[Shutting down the server normally]");
         } catch (IOException e) {
-            System.err.println("[종료 오류] " + e.getMessage());
+            System.err.println("[Shutdown Error] " + e.getMessage());
         }
     }
 }

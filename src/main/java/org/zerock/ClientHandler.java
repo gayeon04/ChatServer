@@ -57,13 +57,13 @@ public class ClientHandler implements Runnable {
 
                 // DoS 방어 1: 메시지 길이 제한
                 if (line.length() > MAX_MESSAGE_LENGTH) {
-                    sendMessage("[경고] 메시지가 너무 깁니다. " + MAX_MESSAGE_LENGTH + "자 이하로 보내세요.");
+                    sendMessage("[warning] Message is too long. Please keep it under " + MAX_MESSAGE_LENGTH + " characters.");
                     continue;
                 }
 
                 // DoS 방어 2: Rate Limiting
                 if (!checkRateLimit()) {
-                    sendMessage("[경고] 메시지를 너무 빠르게 보내고 있습니다. 잠시 후 다시 시도하세요.");
+                    sendMessage("[warning] You are sending messages too fast. Please try again later.");
                     continue;
                 }
 
@@ -71,7 +71,7 @@ public class ClientHandler implements Runnable {
             }
 
         } catch (IOException e) {
-            System.out.println("[연결 끊김] " + (username != null ? username : clientIp));
+            System.out.println("[disconnected] " + (username != null ? username : clientIp));
         } finally {
             disconnect();
         }
@@ -79,24 +79,24 @@ public class ClientHandler implements Runnable {
 
     /** 로그인 처리 */
     private boolean handleLogin() throws IOException {
-        sendMessage("닉네임을 입력하세요:");
+        sendMessage("Enter your nickname:");
         String name = in.readLine();
 
         if (name == null || name.isBlank()) {
-            sendMessage("[오류] 닉네임이 비어있습니다. 연결을 종료합니다.");
+            sendMessage("[error] Nickname is empty. Closing connection.");
             return false;
         }
 
         name = name.trim();
 
         if (!sessionManager.login(name, this)) {
-            sendMessage("[오류] 이미 사용 중인 닉네임입니다. 연결을 종료합니다.");
+            sendMessage("[error] Nickname already in use. Closing connection.");
             return false;
         }
 
         this.username = name;
-        logAccess("로그인");
-        sendMessage("=== 환영합니다, " + username + "님! ===");
+        logAccess("login");
+        sendMessage("=== Welcome, " + username + "! ===");
         sendMessage("도움말: /help");
         return true;
     }
@@ -109,22 +109,22 @@ public class ClientHandler implements Runnable {
 
             switch (cmd) {
                 case "/create" -> {
-                    if (parts.length < 2) { sendMessage("사용법: /create <방이름>"); return; }
+                    if (parts.length < 2) { sendMessage("Usage: /create <roomname>"); return; }
                     handleCreate(parts[1]);
                 }
                 case "/join" -> {
-                    if (parts.length < 2) { sendMessage("사용법: /join <방이름>"); return; }
+                    if (parts.length < 2) { sendMessage("Usage: /join <roomname>"); return; }
                     handleJoin(parts[1]);
                 }
                 case "/leave"  -> handleLeave();
                 case "/rooms"  -> sendMessage(roomManager.getRoomList());
                 case "/whisper", "/w" -> {
-                    if (parts.length < 3) { sendMessage("사용법: /w <닉네임> <메시지>"); return; }
+                    if (parts.length < 3) { sendMessage("Usage: /w <nickname> <message>"); return; }
                     handleWhisper(parts[1], parts[2]);
                 }
                 case "/quit"   -> disconnect();
                 case "/help"   -> sendHelp();
-                default        -> sendMessage("[오류] 알 수 없는 명령어. /help 참조");
+                default        -> sendMessage("[error] Unknown command. See /help");
             }
         } else {
             handleChat(input);
@@ -134,19 +134,19 @@ public class ClientHandler implements Runnable {
     private void handleCreate(String roomName) {
         Room room = roomManager.createRoom(roomName);
         if (room == null) {
-            sendMessage("[오류] 방 생성 실패 (이미 존재하거나 최대 방 수 초과)");
+            sendMessage("[error] Failed to create room (already exists or max rooms exceeded)");
             return;
         }
         handleLeave();
         currentRoom = room;
         room.join(this);
-        sendMessage("[방 생성 완료] '" + roomName + "'에 입장했습니다.");
+        sendMessage("[room created] Joined '" + roomName + "'.");
     }
 
     private void handleJoin(String roomName) {
         Room room = roomManager.getRoom(roomName);
         if (room == null) {
-            sendMessage("[오류] '" + roomName + "' 방이 없습니다. /rooms로 확인하세요.");
+            sendMessage("[error] Room '" + roomName + "' does not exist. Check /rooms.");
             return;
         }
         handleLeave();
@@ -163,7 +163,7 @@ public class ClientHandler implements Runnable {
 
     private void handleChat(String message) {
         if (currentRoom == null) {
-            sendMessage("[안내] 먼저 방에 입장하세요. /rooms → /join <방이름>");
+            sendMessage("[info] Please join a room first. /rooms -> /join <roomname>");
             return;
         }
         String formatted = "[" + currentRoom.getName() + "] " + username + ": " + message;
@@ -174,11 +174,11 @@ public class ClientHandler implements Runnable {
     private void handleWhisper(String targetName, String message) {
         ClientHandler target = sessionManager.getHandler(targetName);
         if (target == null) {
-            sendMessage("[오류] '" + targetName + "' 사용자를 찾을 수 없습니다.");
+            sendMessage("[error] User '" + targetName + "' not found.");
             return;
         }
-        target.sendMessage("[귓속말] " + username + " → " + targetName + ": " + message);
-        sendMessage("[귓속말] 나 → " + targetName + ": " + message);
+        target.sendMessage("[whisper] " + username + " -> " + targetName + ": " + message);
+        sendMessage("[whisper] me -> " + targetName + ": " + message);
     }
 
     /** Rate Limiting 체크 */
@@ -202,7 +202,7 @@ public class ClientHandler implements Runnable {
     /** 접속 로그 콘솔 + 파일 저장 */
     private void logAccess(String event) {
         String log = "[" + LocalDateTime.now().format(LOG_FORMAT) + "] "
-                + event + " | IP: " + clientIp + " | 닉네임: " + username;
+                + event + " | IP: " + clientIp + " | nickname: " + username;
         System.out.println(log);
 
         try (FileWriter fw = new FileWriter("access.log", true);
@@ -210,19 +210,19 @@ public class ClientHandler implements Runnable {
             bw.write(log);
             bw.newLine();
         } catch (IOException e) {
-            System.err.println("[로그 저장 실패] " + e.getMessage());
+            System.err.println("[log write failed] " + e.getMessage());
         }
     }
 
     private void sendHelp() {
         sendMessage("""
-                === 명령어 목록 ===
-                /create <방이름>        - 방 생성 후 입장
-                /join <방이름>          - 방 입장
-                /leave                  - 방 퇴장
-                /rooms                  - 방 목록 보기
-                /w <닉네임> <메시지>    - 귓속말
-                /quit                   - 연결 종료
+                === Command List ===
+                /create <roomname>       - Create and join a room
+                /join <roomname>         - Join a room
+                /leave                   - Leave the current room
+                /rooms                   - List all rooms
+                /w <nickname> <message>  - Send a whisper
+                /quit                    - Disconnect
                 """);
     }
 
@@ -231,13 +231,13 @@ public class ClientHandler implements Runnable {
         handleLeave();
         if (username != null) {
             sessionManager.logout(username);
-            logAccess("로그아웃");
+            logAccess("logout");
         }
         sessionManager.releaseConnection(clientIp);
         try {
             if (!socket.isClosed()) socket.close();
         } catch (IOException e) {
-            System.err.println("[소켓 닫기 오류] " + e.getMessage());
+            System.err.println("[socket close error] " + e.getMessage());
         }
     }
 }

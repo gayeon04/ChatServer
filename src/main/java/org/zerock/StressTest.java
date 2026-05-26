@@ -14,7 +14,7 @@ public class StressTest {
     private static final int PORT = 9999;
 
     public static void main(String[] args) {
-        System.out.println("[스트레스 테스트 시작] 클라이언트 수: " + CLIENT_COUNT);
+        System.out.println("[stress test start] client count: " + CLIENT_COUNT);
 
         for (int i = 1; i <= CLIENT_COUNT; i++) {
             final int clientId = i;
@@ -37,27 +37,27 @@ public class StressTest {
 
                     // 방 생성 or 입장
                     if (clientId == 1) {
-                        out.println("/create 테스트방");
+                        out.println("/create testroom");
                     } else {
-                        out.println("/join 테스트방");
+                        out.println("/join testroom");
                     }
                     Thread.sleep(300);
 
                     // 메시지 3번 전송
                     for (int j = 1; j <= 3; j++) {
-                        out.println("User" + clientId + "의 " + j + "번째 메시지");
+                        out.println("User" + clientId + " message " + j);
                         Thread.sleep(200);
                     }
 
                     // 서버 응답 읽기
                     Thread.sleep(500);
-                    System.out.println("[User" + clientId + "] 테스트 완료");
+                    System.out.println("[User" + clientId + "] test completed");
 
                     out.println("/quit");
                     socket.close();
 
                 } catch (Exception e) {
-                    System.out.println("[User" + clientId + "] 오류: " + e.getMessage());
+                    System.out.println("[User" + clientId + "] error: " + e.getMessage());
                 }
             });
 

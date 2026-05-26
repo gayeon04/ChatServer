@@ -28,13 +28,13 @@ public class Room {
     /** 방 입장 */
     public void join(ClientHandler handler) {
         members.add(handler);
-        broadcast("[" + name + "] " + handler.getUsername() + "님이 입장했습니다.", null);
+        broadcast("[" + name + "] " + handler.getUsername() + " has joined.", null);
     }
 
     /** 방 퇴장 */
     public void leave(ClientHandler handler) {
         members.remove(handler);
-        broadcast("[" + name + "] " + handler.getUsername() + "님이 퇴장했습니다.", null);
+        broadcast("[" + name + "] " + handler.getUsername() + " has left.", null);
     }
 
     /**

@@ -1,6 +1,7 @@
 package org.zerock;
 
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * 현재 로그인된 사용자 세션을 관리하는 클래스
@@ -14,13 +15,18 @@ public class SessionManager {
     private static final int MAX_CONNECTIONS_PER_IP = 3;
 
     public boolean allowConnection(String ip) {
-        int count = ipConnectionCount.getOrDefault(ip, 0);
-        if (count >= MAX_CONNECTIONS_PER_IP) {
-            System.out.println("[DoS 차단] IP " + ip + " 접속 초과");
-            return false;
+        // compute()로 read-check-write를 atomic하게 처리해 race condition 방지
+        AtomicBoolean allowed = new AtomicBoolean(false);
+        ipConnectionCount.compute(ip, (k, v) -> {
+            int count = (v == null) ? 0 : v;
+            if (count >= MAX_CONNECTIONS_PER_IP) return count;
+            allowed.set(true);
+            return count + 1;
+        });
+        if (!allowed.get()) {
+            System.out.println("[DoS blocked] IP " + ip + " connection limit exceeded");
         }
-        ipConnectionCount.put(ip, count + 1);
-        return true;
+        return allowed.get();
     }
 
     public void releaseConnection(String ip) {
@@ -30,13 +36,13 @@ public class SessionManager {
     public boolean login(String username, ClientHandler handler) {
         if (sessions.containsKey(username)) return false;
         sessions.put(username, handler);
-        System.out.println("[로그인] " + username);
+        System.out.println("[login] " + username);
         return true;
     }
 
     public void logout(String username) {
         sessions.remove(username);
-        System.out.println("[로그아웃] " + username);
+        System.out.println("[logout] " + username);
     }
 
     public ClientHandler getHandler(String username) {

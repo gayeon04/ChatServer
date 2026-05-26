@@ -15,9 +15,10 @@ public class RoomManager {
     private static final int MAX_ROOMS = 20;
 
     /** 방 생성 */
-    public Room createRoom(String roomName) {
+    public synchronized Room createRoom(String roomName) {
+        // size() → putIfAbsent() 사이의 race condition을 막기 위해 synchronized
         if (rooms.size() >= MAX_ROOMS) {
-            System.out.println("[DoS 방어] 최대 방 개수 초과: " + roomName);
+            System.out.println("[DoS defense] Max rooms exceeded: " + roomName);
             return null;
         }
         rooms.putIfAbsent(roomName, new Room(roomName));
@@ -36,11 +37,11 @@ public class RoomManager {
 
     /** 방 목록 반환 */
     public String getRoomList() {
-        if (rooms.isEmpty()) return "현재 생성된 방이 없습니다.";
-        StringBuilder sb = new StringBuilder("=== 방 목록 ===\n");
+        if (rooms.isEmpty()) return "No rooms available.";
+        StringBuilder sb = new StringBuilder("=== Room List ===\n");
         rooms.forEach((name, room) ->
                 sb.append("  - ").append(name)
-                        .append(" (").append(room.getMemberCount()).append("명)\n"));
+                        .append(" (").append(room.getMemberCount()).append(" members)\n"));
         return sb.toString();
     }
 }
