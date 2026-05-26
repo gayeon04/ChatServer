@@ -1,0 +1,6 @@
+> Task :compileJava UP-TO-DATE
+> Task :processResources NO-SOURCE
+> Task :classes UP-TO-DATE
+
+> Task :runServer
+[server start] port: 9999 | max connection: 20

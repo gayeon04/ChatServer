@@ -98,3 +98,9 @@
 [2026-05-26 11:19:59] login | IP: 127.0.0.1 | nickname: carol
 [2026-05-26 11:25:36] login | IP: 127.0.0.1 | nickname: alice
 [2026-05-26 11:25:46] login | IP: 127.0.0.1 | nickname: bob
+[2026-05-26 15:36:25] login | IP: 127.0.0.1 | nickname: gayeon
+[2026-05-26 15:38:17] login | IP: 127.0.0.1 | nickname: gb
+[2026-05-26 15:48:20] login | IP: 127.0.0.1 | nickname: notgayeon
+[2026-05-26 15:49:39] logout | IP: 127.0.0.1 | nickname: gayeon
+[2026-05-26 15:49:55] logout | IP: 127.0.0.1 | nickname: gb
+[2026-05-26 15:49:56] logout | IP: 127.0.0.1 | nickname: notgayeon

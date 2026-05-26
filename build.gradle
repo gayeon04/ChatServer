@@ -31,6 +31,13 @@ task runServer(type: JavaExec) {
     standardInput = System.in
 }
 
+task runClient(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'org.zerock.ChatClient'
+    jvmArgs = ['-Dfile.encoding=UTF-8', '-Dstdout.encoding=UTF-8']
+    standardInput = System.in
+}
+
 dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
     testImplementation 'org.mockito:mockito-core:5.11.0'
